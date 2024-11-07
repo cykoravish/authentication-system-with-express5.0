@@ -4,13 +4,15 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node server.js"
+    "dev": "node --env-file=.env server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^5.0.1"
+    "cors": "^2.8.5",
+    "express": "^5.0.1",
+    "mongoose": "^8.8.0"
   }
 }
