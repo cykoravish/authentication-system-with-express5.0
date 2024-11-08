@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
-import { connectDb } from "./db.js";
+import { connectDb } from "./src/config/db.js";
+import userRouter from "./src/user/user.route.js";
+import helmet from "helmet";
 
 const app = express();
 
@@ -12,9 +14,12 @@ try {
   process.exit(1);
 }
 
-//inbuild middleware
+//inbuild middlewares
+// app.use(express.static("public"));  //http://localhost:4000
+app.use("/static", express.static("public")); //http://localhost:4000/static/
 app.use(express.json());
 app.use(cors()); //third party middlewars
+app.use(helmet()); //for security
 
 const reqLogger = (req, res, next) => {
   console.log(`method: ${req.method} url: ${req.url} ${new Date()}`);
@@ -22,23 +27,21 @@ const reqLogger = (req, res, next) => {
 };
 
 // global middleware
-// app.use(reqLogger);
+app.use(reqLogger);
 
-app.get("/health", reqLogger, (req, res) => {
+
+app.use("/api/users", userRouter); //register route
+
+app.get("/health", (req, res) => {
   res.send("Hey i am healthy");
   //   res.status(400).json({ name: "ravish" });
 });
 
-app.post("/api/users", (req, res) => {
-  //   throw new Error("error occur in /api/users");
-  console.log("body: ", req.body);
-  res.json(req.body);
-});
-
 //error catching middleware
 app.use((err, req, res, next) => {
-  console.log(err);
-  res.status(500).json({ message: "something broke" });
+  console.log("err:", err.stack);
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({ message: err.message });
 });
 
 const PORT = process.env.PORT || 4000;
